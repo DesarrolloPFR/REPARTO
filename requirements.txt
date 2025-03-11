@@ -2,3 +2,10 @@ streamlit
 plotly.express
 pandas
 openpyxl
+plotly.graph_objects
+folium
+folium.plugins
+streamlit_folium
+io
+numpy as np
+sklearn.cluster
