@@ -163,7 +163,7 @@ with tab3:
         st.info("Utilizando datos de ejemplo por falta de archivo original.")
 
     # Obtener todas las unidades disponibles (para incluir en la tabla)
-    unidades_todas = sorted(df_entregas['unidad (Entrega)'].dropna().unique())
+    unidades_todas = sorted(df_entregas['unidad'].dropna().unique())
 
     ############################################################
     # Cargar archivo de paradas inválidas para el mapa y la tabla
