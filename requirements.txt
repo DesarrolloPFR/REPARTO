@@ -7,5 +7,5 @@ folium
 folium.plugins
 streamlit_folium
 io
-numpy as np
+numpy
 sklearn.cluster
