@@ -4,6 +4,5 @@ pandas
 openpyxl
 folium
 streamlit_folium
-io
 numpy
 sklearn
