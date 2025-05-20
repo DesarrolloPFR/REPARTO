@@ -1,11 +1,9 @@
 streamlit
-plotly.express
+plotly
 pandas
 openpyxl
-plotly.graph_objects
 folium
-folium.plugins
 streamlit_folium
 io
 numpy
-sklearn.cluster
+sklearn
