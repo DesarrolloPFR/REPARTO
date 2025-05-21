@@ -12,131 +12,11 @@ from sklearn.cluster import DBSCAN
 
 st.set_page_config(layout="wide")
 
-tab1, tab3, tab4, tab5, tab6 = st.tabs([
-    "Rendimiento", "Desviaciones", "Seguridad de unidades", "Eventos/Incidentes", "Evaluación"])
+tab3, tab4, tab5, tab6 = st.tabs([
+    "Desviaciones", "Seguridad de unidades", "Eventos/Incidentes", "Evaluación"])
 
 #----------------------------------------INICIO PESTAÑA 1----------------------------------------#
-with tab1:
-    st.markdown("### **Rendimiento de combustible**")
 
-    # Leer el archivo Excel
-    file_path = r"rendimiento/rendimiento_borrador_1.xlsx"
-    try:
-        df = pd.read_excel(file_path)
-    except Exception as e:
-        st.error(f"No se pudo leer el archivo: {e}")
-        st.stop()
-
-    # Preprocesamiento: limpiar columnas monetarias (quitar '$' y comas)
-    importe_cols = ["Importe (Promedio al mes)", "Importe"]
-    for col in importe_cols:
-        df[col] = df[col].replace({'\$': '', ',': ''}, regex=True)
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    # Calcular las variaciones en porcentaje
-    df["Variación Litros (%)"] = df["variacion_litros"] * 100
-    df["Variación Importe (%)"] = df["variacion_importe"] * 100
-
-    # --- Primera Tabla: Variaciones por Unidad ---
-    cols_variation = [
-        "Unidad",
-        "Litros (Promedio al mes)",
-        "Litros",
-        "Variación Litros (%)",
-        "Importe (Promedio al mes)",
-        "Importe",
-        "Variación Importe (%)",
-    ]
-    df_variation = df[cols_variation].set_index("Unidad").sort_values(by="Variación Importe (%)", ascending=True)
-
-    # Diccionario de formateo: todos los valores numéricos a 1 decimal
-    format_dict_variation = {
-        "Litros (Promedio al mes)": "{:.1f}",
-        "Litros": "{:.1f}",
-        "Variación Litros (%)": "{:.1f}%",
-        "Importe (Promedio al mes)": "{:.1f}",
-        "Importe": "{:.1f}",
-        "Variación Importe (%)": "{:.1f}%",
-        "Calificacion": "{:.1f}"
-    }
-
-    # Función para colorear las variaciones según rangos
-    def color_variacion(val):
-        if val < 10:
-            return 'background-color: green; color: white;'
-        elif val < 30:
-            return 'background-color: yellow;'
-        else:
-            return 'background-color: red; color: white;'
-
-    styled_variation = (
-        df_variation.style
-        .format(format_dict_variation)
-        .map(color_variacion, subset=["Variación Litros (%)", "Variación Importe (%)"])
-        .hide(axis="index")
-    )
-
-    # --- Segunda Tabla: Calificaciones por Unidad ---
-    df_cal = df[["Unidad", "Calificacion"]].set_index("Unidad").sort_values(by="Calificacion", ascending=False)
-    format_dict_cal = {"Calificacion": "{:.1f}"}
-    def color_cal(val):
-        if val >= 90:
-            return 'background-color: green; color: white;'
-        elif val >= 70:
-            return 'background-color: yellow;'
-        else:
-            return 'background-color: red; color: white;'
-    styled_cal = df_cal.style.format(format_dict_cal).map(color_cal, subset=["Calificacion"])
-
-    # Mostrar ambas tablas lado a lado
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Variación")
-        st.dataframe(styled_variation, height=500)
-    with col2:
-        st.subheader("Puntuación")
-        st.dataframe(styled_cal, height=500)
-
-    # Para las gráficas: asignamos colores según el criterio definido
-    def get_color(val):
-        if val < 10:
-            return 'green'
-        elif val < 30:
-            return 'yellow'
-        else:
-            return 'red'
-    df_variation["color_litros"] = df_variation["Variación Litros (%)"].apply(get_color)
-    df_variation["color_importe"] = df_variation["Variación Importe (%)"].apply(get_color)
-    color_map = {"green": "green", "yellow": "yellow", "red": "red"}
-
-    df_variation = df_variation.reset_index()
-    # --- Gráfico: Variación en Litros (%) ---
-    st.subheader("Variación en Litros (%)")
-    fig_litros = px.bar(
-        df_variation,
-        x="Unidad",
-        y="Variación Litros (%)",
-        color="color_litros",
-        color_discrete_map=color_map,
-        hover_data={"Unidad": True, "Variación Litros (%)": True, "color_litros": False}
-    )
-    fig_litros.update_layout(showlegend=False)
-    fig_litros.update_traces(hovertemplate="Unidad: %{x}<br>Variación Litros: %{y:.1f}%<extra></extra>")
-    st.plotly_chart(fig_litros, use_container_width=True)
-
-    # --- Gráfico: Variación en Importe (%) ---
-    st.subheader("Variación en Importe (%)")
-    fig_importe = px.bar(
-        df_variation,
-        x="Unidad",
-        y="Variación Importe (%)",
-        color="color_importe",
-        color_discrete_map=color_map,
-        hover_data={"Unidad": True, "Variación Importe (%)": True, "color_importe": False}
-    )
-    fig_importe.update_layout(showlegend=False)
-    fig_importe.update_traces(hovertemplate="Unidad: %{x}<br>Variación Importe: %{y:.1f}%<extra></extra>")
-    st.plotly_chart(fig_importe, use_container_width=True)
 #----------------------------------------FIN PESTAÑA 1----------------------------------------#
 
 
@@ -571,15 +451,10 @@ with tab6:
     st.title("Evaluación Total")
 
     # Crear un DataFrame vacío para almacenar todas las calificaciones
-    df_calificaciones_totales = pd.DataFrame(columns=["Unidad", "Calificación Rendimiento", "Calificación Desviaciones", 
+    df_calificaciones_totales = pd.DataFrame(columns=["Unidad", "Calificación Desviaciones", 
                                                       "Calificación Seguridad (Mensual)", "Calificación Eventos", "Promedio Total"])
     
     try:
-        # Pestaña 1: Rendimiento
-        # Se asume que 'df' es el DataFrame de la pestaña 1 con las calificaciones de rendimiento,
-        # y que la columna se llama "Calificacion" (sin tilde) y "Unidad".
-        df_cal_rendimiento = df[["Unidad", "Calificacion"]].sort_values(by="Calificacion", ascending=False).copy()
-        
         # Pestaña 3: Entregas (Desviaciones)
         # Se utiliza 'df_metricas' generado en la pestaña 3 con la columna "Calificación"
         df_cal_entregas = df_metricas[["Unidad", "Calificación"]].copy()
@@ -600,7 +475,6 @@ with tab6:
         
         # Obtener lista única de todas las unidades
         todas_unidades = sorted(list(set(
-            list(df_cal_rendimiento["Unidad"].unique()) + 
             list(df_cal_entregas["Unidad"].unique()) + 
             list(df_cal_seguridad["Unidad"].unique()) + 
             list(df_cal_eventos["Unidad"].unique())
@@ -610,9 +484,6 @@ with tab6:
         df_calificaciones_totales = pd.DataFrame({"Unidad": todas_unidades})
         
         # Merge con los DataFrames de cada pestaña
-        df_calificaciones_totales = df_calificaciones_totales.merge(
-            df_cal_rendimiento, on="Unidad", how="left"
-        ).rename(columns={"Calificacion": "Calificación Rendimiento"})
         
         df_calificaciones_totales = df_calificaciones_totales.merge(
             df_cal_entregas, on="Unidad", how="left"
@@ -627,7 +498,7 @@ with tab6:
         ).rename(columns={"Calificación": "Calificación Eventos"})
         
         # Reemplazar None/NaN por 100 en las columnas de calificación
-        columnas_cal = ["Calificación Rendimiento", "Calificación Desviaciones", 
+        columnas_cal = ["Calificación Desviaciones", 
                         "Calificación Seguridad (Mensual)", "Calificación Eventos"]
         df_calificaciones_totales[columnas_cal] = df_calificaciones_totales[columnas_cal].fillna(100)
         
@@ -656,7 +527,6 @@ with tab6:
 
         # Aplicar formato numérico a las columnas y estilo a "Promedio Total"
         df_styled = df_calificaciones_totales.set_index("Unidad").style.format({
-            "Calificación Rendimiento": '{:.1f}',
             "Calificación Desviaciones": '{:.1f}',
             "Calificación Seguridad (Mensual)": '{:.1f}',
             "Calificación Eventos": '{:.1f}',
